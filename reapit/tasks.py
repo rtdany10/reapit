@@ -5,23 +5,6 @@ import frappe
 import json
 from frappe.utils.dateutils import user_to_str
 
-@frappe.whitelist()
-def material_request():
-    doc = frappe.get_doc({
-        'doctype': 'Material Request',
-        'material_request_type': 'Material Transfer',
-        'items': [
-            {
-                'item_code': 'Test Item #2',
-                'qty': 5,
-                'schedule_date': user_to_str('04-06-2021')
-            }
-        ],
-        'transaction_date': user_to_str('04-06-2021')
-    })
-    doc.insert(ignore_permissions = True)
-    doc.submit()
-
 @frappe.whitelist(allow_guest=True)
 def used_product():
     try:
@@ -29,7 +12,7 @@ def used_product():
         doc = frappe.get_doc({
             'doctype': 'Stock Entry',
             'stock_entry_type': 'Material Receipt',
-            'to_warehouse': items['target_warehouse'],
+            'to_warehouse': str(items['target_warehouse']),
             'items': [{
                 'item_code': str(items['item_id']) + "-USED",
                 'qty': 1,
@@ -42,9 +25,9 @@ def used_product():
         doc = frappe.get_doc({
             'doctype': 'Stock Entry',
             'stock_entry_type': 'Material Issue',
-            'from_warehouse': items['source_warehouse'],
+            'from_warehouse': str(items['source_warehouse']),
             'items': [{
-                'item_code': items['item_id'],
+                'item_code': str(items['item_id']),
                 'qty': 1,
                 'allow_zero_valuation_rate': 1
             }]
@@ -63,15 +46,15 @@ def transfer_item():
         products = []
         for item in items['part_info']:
             products.append({
-                'item_code': item['product_code'],
+                'item_code': str(item['product_code']),
                 'qty': item['product_quantity'],
                 'allow_zero_valuation_rate': 1
             })
         doc = frappe.get_doc({
             'doctype': 'Stock Entry',
             'stock_entry_type': 'Material Transfer',
-            'from_warehouse': items['source_warehouse'],
-            'to_warehouse': items['target_warehouse'],
+            'from_warehouse': str(items['source_warehouse']),
+            'to_warehouse': str(items['target_warehouse']),
             'items': products
         })
         doc.insert(ignore_permissions = True)
