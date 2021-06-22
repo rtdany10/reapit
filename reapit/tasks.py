@@ -3,7 +3,6 @@
 # For license information, please see license.txt
 import frappe
 import json
-from frappe.utils.dateutils import user_to_str
 
 @frappe.whitelist(allow_guest=True)
 def used_product():
