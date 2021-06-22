@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include reapit *.css
+recursive-include reapit *.csv
+recursive-include reapit *.html
+recursive-include reapit *.ico
+recursive-include reapit *.js
+recursive-include reapit *.json
+recursive-include reapit *.md
+recursive-include reapit *.png
+recursive-include reapit *.py
+recursive-include reapit *.svg
+recursive-include reapit *.txt
+recursive-exclude reapit *.pyc
