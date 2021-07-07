@@ -66,16 +66,19 @@ def transfer_item():
 @frappe.whitelist()
 def sync_item(doc, method=None):
     settings = frappe.get_single('Item Sync Settings')
+    action = "delete" if method == "on_trash" else "edit"
+    action = "add" if doc.is_new() else action
     if settings.enabled:
         try:
-            args = {
+            args = json.dumps({
                 "id": doc.item_code,
                 "name": doc.item_name,
                 "group": doc.item_group,
                 "uom": doc.stock_uom,
                 "hsn": doc.gst_hsn_code or "",
-                "price": frappe.db.get_value('Item Price', {'price_list': settings.price_list }, 'price_list_rate') or 0.00
-            }
+                "price": frappe.db.get_value('Item Price', {'price_list': settings.price_list }, 'price_list_rate') or 0.00,
+                "action": action
+            })
             import requests
             api_url = settings.api_endpoint
             headers = {
@@ -83,7 +86,7 @@ def sync_item(doc, method=None):
                 "Content-Type": "application/json"
             }
             if settings.auth_token:
-                headers["Authorization"] = "token " + settings.auth_token
+                headers["Authorization"] = "Bearer " + settings.auth_token
             response = requests.post(api_url, headers=headers, data=args)
             frappe.msgprint("Item synced")
         except:

@@ -81,7 +81,7 @@ app_license = "MIT"
 
 doc_events = {
 	"Item": {
-		"on_change": "reapit.tasks.sync_item",
+		"before_save": "reapit.tasks.sync_item",
 		"on_trash": "reapit.tasks.sync_item"
 	}
 }
