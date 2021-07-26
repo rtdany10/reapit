@@ -3,6 +3,68 @@
 # For license information, please see license.txt
 import frappe
 import json
+from erpnext.stock.doctype.stock_reconciliation.stock_reconciliation import get_items
+from frappe.utils import today, nowtime, format_date, format_time
+
+@frappe.whitelist(allow_guest=True)
+def warehouse_stock():
+    try:
+        items = json.loads(frappe.request.data)
+        if not items['item_code']:
+            items['item_code'] = None
+        if not items['date']:
+            items['date'] = today()
+        else:
+            items['date'] = format_date(items['date'])
+        if not items['time']:
+            items['time'] = nowtime()
+        else:
+            items['time'] = format_time(items['time'])
+        return get_items(str(items['warehouse']), items['date'], items['time'])
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "Warehouse stock API error")
+        return e
+
+@frappe.whitelist(allow_guest=True)
+def material_receipt():
+    try:
+        items = json.loads(frappe.request.data)
+        doc = frappe.get_doc({
+            'doctype': 'Stock Entry',
+            'stock_entry_type': 'Material Receipt',
+            'to_warehouse': str(items['target_warehouse']),
+            'items': [{
+                'item_code': str(items['item_id']) + "-USED",
+                'qty': 1,
+                'allow_zero_valuation_rate': 1
+            }]
+        })
+        doc.insert(ignore_permissions = True)
+        doc.submit()
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "Material receipt API error")
+        return e
+    return 0
+
+@frappe.whitelist(allow_guest=True)
+def material_issue():
+    try:
+        doc = frappe.get_doc({
+            'doctype': 'Stock Entry',
+            'stock_entry_type': 'Material Issue',
+            'from_warehouse': str(items['source_warehouse']),
+            'items': [{
+                'item_code': str(items['item_id']),
+                'qty': 1,
+                'allow_zero_valuation_rate': 1
+            }]
+        })
+        doc.insert(ignore_permissions = True)
+        doc.submit()
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "Material issue API error")
+        return e
+    return 0
 
 @frappe.whitelist(allow_guest=True)
 def used_product():
@@ -34,7 +96,7 @@ def used_product():
         doc.insert(ignore_permissions = True)
         doc.submit()
     except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "Used Product API error")
+        frappe.log_error(frappe.get_traceback(), "Used product API error")
         return e
     return 0
 
@@ -59,7 +121,7 @@ def transfer_item():
         doc.insert(ignore_permissions = True)
         doc.submit()
     except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "Material Transfer API error")
+        frappe.log_error(frappe.get_traceback(), "Material transfer API error")
         return e
     return 0
 
