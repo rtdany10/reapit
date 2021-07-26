@@ -5,20 +5,23 @@ import frappe
 import json
 from erpnext.stock.doctype.stock_reconciliation.stock_reconciliation import get_items
 from frappe.utils.data import today, nowtime, format_date, format_time
+from erpnext import get_default_company
 
 @frappe.whitelist(allow_guest=True)
 def warehouse_stock():
     try:
         items = json.loads(frappe.request.data)
-        if not items['date']:
+        if not items.get('date'):
             items['date'] = today()
         else:
             items['date'] = format_date(items['date'])
-        if not items['time']:
+        if not items.get('time'):
             items['time'] = nowtime()
         else:
             items['time'] = format_time(items['time'])
-        return get_items(str(items['warehouse']), items['date'], items.get('item_code'))
+        if not items.get('company'):
+            items['company'] = get_default_company()
+        return get_items(str(items['warehouse']), items['date'], items['company'], items.get('item_code'))
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "Warehouse stock API error")
         return e
