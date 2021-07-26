@@ -4,7 +4,7 @@
 import frappe
 import json
 from erpnext.stock.doctype.stock_reconciliation.stock_reconciliation import get_items
-from frappe.utils import today, nowtime, format_date, format_time
+from frappe.utils.data import today, nowtime, format_date, format_time
 
 @frappe.whitelist(allow_guest=True)
 def warehouse_stock():
