@@ -50,6 +50,7 @@ def material_receipt():
 @frappe.whitelist(allow_guest=True)
 def material_issue():
     try:
+        items = json.loads(frappe.request.data)
         doc = frappe.get_doc({
             'doctype': 'Stock Entry',
             'stock_entry_type': 'Material Issue',
