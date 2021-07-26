@@ -33,10 +33,10 @@ def material_receipt():
         doc = frappe.get_doc({
             'doctype': 'Stock Entry',
             'stock_entry_type': 'Material Receipt',
-            'to_warehouse': str(items['target_warehouse']),
+            'to_warehouse': str(items.get('target_warehouse')),
             'items': [{
-                'item_code': str(items['item_id']) + "-USED",
-                'qty': 1,
+                'item_code': str(items.get('item_id')),
+                'qty': item.get('product_quantity'),
                 'allow_zero_valuation_rate': 1
             }]
         })
@@ -53,10 +53,10 @@ def material_issue():
         doc = frappe.get_doc({
             'doctype': 'Stock Entry',
             'stock_entry_type': 'Material Issue',
-            'from_warehouse': str(items['source_warehouse']),
+            'from_warehouse': str(items.get('source_warehouse')),
             'items': [{
-                'item_code': str(items['item_id']),
-                'qty': 1,
+                'item_code': str(items.get('item_id')),
+                'qty': item.get('product_quantity'),
                 'allow_zero_valuation_rate': 1
             }]
         })
@@ -74,9 +74,9 @@ def used_product():
         doc = frappe.get_doc({
             'doctype': 'Stock Entry',
             'stock_entry_type': 'Material Receipt',
-            'to_warehouse': str(items['target_warehouse']),
+            'to_warehouse': str(items.get('target_warehouse')),
             'items': [{
-                'item_code': str(items['item_id']) + "-USED",
+                'item_code': str(items.get('item_id')) + "-USED",
                 'qty': 1,
                 'allow_zero_valuation_rate': 1
             }]
@@ -87,9 +87,9 @@ def used_product():
         doc = frappe.get_doc({
             'doctype': 'Stock Entry',
             'stock_entry_type': 'Material Issue',
-            'from_warehouse': str(items['source_warehouse']),
+            'from_warehouse': str(items.get('source_warehouse')),
             'items': [{
-                'item_code': str(items['item_id']),
+                'item_code': str(items.get('item_id')),
                 'qty': 1,
                 'allow_zero_valuation_rate': 1
             }]
@@ -108,15 +108,15 @@ def transfer_item():
         products = []
         for item in items['part_info']:
             products.append({
-                'item_code': str(item['product_code']),
-                'qty': item['product_quantity'],
+                'item_code': str(item.get('product_code')),
+                'qty': item.get('product_quantity'),
                 'allow_zero_valuation_rate': 1
             })
         doc = frappe.get_doc({
             'doctype': 'Stock Entry',
             'stock_entry_type': 'Material Transfer',
-            'from_warehouse': str(items['source_warehouse']),
-            'to_warehouse': str(items['target_warehouse']),
+            'from_warehouse': str(items.get('source_warehouse')),
+            'to_warehouse': str(items.get('target_warehouse')),
             'items': products
         })
         doc.insert(ignore_permissions = True)
