@@ -10,8 +10,6 @@ from frappe.utils.data import today, nowtime, format_date, format_time
 def warehouse_stock():
     try:
         items = json.loads(frappe.request.data)
-        if not items['item_code']:
-            items['item_code'] = None
         if not items['date']:
             items['date'] = today()
         else:
@@ -20,7 +18,7 @@ def warehouse_stock():
             items['time'] = nowtime()
         else:
             items['time'] = format_time(items['time'])
-        return get_items(str(items['warehouse']), items['date'], items['time'])
+        return get_items(str(items['warehouse']), items['date'], items.get('item_code'))
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "Warehouse stock API error")
         return e
