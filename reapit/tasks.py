@@ -21,9 +21,7 @@ def warehouse_stock():
             items['time'] = format_time(items['time'])
         if not items.get('company'):
             items['company'] = get_default_company()
-        info = get_items(str(items['warehouse']), items['date'], items['company'], items.get('item_code'))
-        frappe.log_error(str(items), "Warehouse stock API error")
-        return info
+        return get_items(str(items['warehouse']), items['date'], items['time'], items['company'], items.get('item_code'))
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "Warehouse stock API error")
         return e
