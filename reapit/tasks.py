@@ -141,6 +141,9 @@ def sync_item(doc, method=None):
                 "uom": doc.stock_uom,
                 "hsn": doc.gst_hsn_code or "",
                 "price": frappe.db.get_value('Item Price', {'price_list': settings.price_list }, 'price_list_rate') or 0.00,
+                "type": doc.item_type,
+                "serialized": doc.has_serial_no,
+                "disabled": doc.disabled,
                 "action": action
             })
             import requests
