@@ -36,7 +36,7 @@ def material_receipt():
             'to_warehouse': str(items.get('target_warehouse')),
             'items': [{
                 'item_code': str(items.get('item_id')),
-                'qty': item.get('product_quantity'),
+                'qty': items.get('product_quantity'),
                 'allow_zero_valuation_rate': 1
             }]
         })
@@ -57,7 +57,7 @@ def material_issue():
             'from_warehouse': str(items.get('source_warehouse')),
             'items': [{
                 'item_code': str(items.get('item_id')),
-                'qty': item.get('product_quantity'),
+                'qty': items.get('product_quantity'),
                 'allow_zero_valuation_rate': 1
             }]
         })
