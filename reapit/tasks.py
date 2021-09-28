@@ -142,7 +142,7 @@ def sync_item(doc, method=None):
                 "hsn": doc.gst_hsn_code or "",
                 "price": frappe.db.get_value('Item Price', {'price_list': settings.price_list }, 'price_list_rate') or 0.00,
                 "type": doc.item_type,
-                "serialized": doc.has_serial_no,
+                "serialized": 1 if doc.serialized == "Yes" else 0,
                 "disabled": doc.disabled,
                 "action": action
             })
