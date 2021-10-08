@@ -8,6 +8,17 @@ from frappe.utils.data import today, nowtime, format_date, format_time
 from erpnext import get_default_company
 
 @frappe.whitelist(allow_guest=True)
+def check_item(item_id):
+    try:
+        value = frappe.db.get_value('Item', str(item_id), 'disabled')
+        if value in [0, 1]:
+            return {'exists': 1, 'enabled': not value}
+        return {'exists': 0, 'enabled': value}
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "Item check API error")
+        return e
+
+@frappe.whitelist(allow_guest=True)
 def warehouse_stock():
     try:
         items = json.loads(frappe.request.data)
