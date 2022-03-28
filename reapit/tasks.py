@@ -166,7 +166,10 @@ def sync_item(doc, method=None):
             if settings.auth_token:
                 headers["Authorization"] = "Bearer " + settings.auth_token
             response = requests.post(api_url, headers=headers, data=args)
-            frappe.msgprint("Item synced")
+            if response.status_code == 200:
+                frappe.msgprint("Item synced")
+            else:
+                frappe.msgprint("Error syncing: " + str(response.text))
         except:
             frappe.log_error(message=frappe.get_traceback(), title='Item Sync Error')
             frappe.throw("Error syncing item. Please contact system manager.")
