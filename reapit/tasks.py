@@ -7,6 +7,7 @@ from erpnext.stock.doctype.stock_reconciliation.stock_reconciliation import get_
 from frappe.utils.data import today, nowtime, format_date, format_time
 from erpnext import get_default_company
 
+
 @frappe.whitelist(allow_guest=True)
 def check_item(item_id):
     try:
@@ -17,6 +18,7 @@ def check_item(item_id):
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "Item check API error")
         return e
+
 
 @frappe.whitelist(allow_guest=True)
 def warehouse_stock():
@@ -37,6 +39,7 @@ def warehouse_stock():
         frappe.log_error(frappe.get_traceback(), "Warehouse stock API error")
         return e
 
+
 @frappe.whitelist(allow_guest=True)
 def material_receipt():
     try:
@@ -51,12 +54,13 @@ def material_receipt():
                 'allow_zero_valuation_rate': 1
             }]
         })
-        doc.insert(ignore_permissions = True)
+        doc.insert(ignore_permissions=True)
         doc.submit()
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "Material receipt API error")
         return e
     return 0
+
 
 @frappe.whitelist(allow_guest=True)
 def material_issue():
@@ -72,12 +76,13 @@ def material_issue():
                 'allow_zero_valuation_rate': 1
             }]
         })
-        doc.insert(ignore_permissions = True)
+        doc.insert(ignore_permissions=True)
         doc.submit()
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "Material issue API error")
         return e
     return 0
+
 
 @frappe.whitelist(allow_guest=True)
 def used_product():
@@ -93,7 +98,7 @@ def used_product():
                 'allow_zero_valuation_rate': 1
             }]
         })
-        doc.insert(ignore_permissions = True)
+        doc.insert(ignore_permissions=True)
         doc.submit()
 
         doc = frappe.get_doc({
@@ -106,12 +111,13 @@ def used_product():
                 'allow_zero_valuation_rate': 1
             }]
         })
-        doc.insert(ignore_permissions = True)
+        doc.insert(ignore_permissions=True)
         doc.submit()
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "Used product API error")
         return e
     return 0
+
 
 @frappe.whitelist(allow_guest=True)
 def transfer_item():
@@ -122,6 +128,7 @@ def transfer_item():
             products.append({
                 'item_code': str(item.get('product_code')),
                 'qty': item.get('product_quantity'),
+                'set_basic_rate_manually': item.get('zero_rate', 0),
                 'allow_zero_valuation_rate': 1
             })
         doc = frappe.get_doc({
@@ -131,12 +138,13 @@ def transfer_item():
             'to_warehouse': str(items.get('target_warehouse')),
             'items': products
         })
-        doc.insert(ignore_permissions = True)
+        doc.insert(ignore_permissions=True)
         doc.submit()
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "Material transfer API error")
         return e
     return 0
+
 
 @frappe.whitelist()
 def sync_item(doc, method=None):
@@ -151,7 +159,7 @@ def sync_item(doc, method=None):
                 "group": doc.item_group,
                 "uom": doc.stock_uom,
                 "hsn": doc.gst_hsn_code or "",
-                "price": frappe.db.get_value('Item Price', {'price_list': settings.price_list }, 'price_list_rate') or 0.00,
+                "price": frappe.db.get_value('Item Price', {'price_list': settings.price_list}, 'price_list_rate') or 0.00,
                 "type": doc.item_type,
                 "serialized": 1 if doc.serialized == "Yes" else 0,
                 "disabled": doc.disabled,
@@ -170,6 +178,6 @@ def sync_item(doc, method=None):
                 frappe.msgprint("Item synced")
             else:
                 frappe.msgprint("Error syncing: " + str(response.text))
-        except:
+        except Exception:
             frappe.log_error(message=frappe.get_traceback(), title='Item Sync Error')
             frappe.throw("Error syncing item. Please contact system manager.")
