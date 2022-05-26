@@ -129,7 +129,8 @@ def transfer_item():
                 'item_code': str(item.get('product_code')),
                 'qty': item.get('product_quantity'),
                 'set_basic_rate_manually': item.get('zero_rate', 0),
-                'allow_zero_valuation_rate': 1
+                'allow_zero_valuation_rate': 1,
+                'serial_no': "\n".join(item.get('serial_no', []))
             })
         doc = frappe.get_doc({
             'doctype': 'Stock Entry',
