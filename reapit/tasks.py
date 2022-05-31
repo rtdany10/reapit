@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2021, Wahni Green Technologies and contributors
 # For license information, please see license.txt
 import frappe
@@ -51,7 +50,8 @@ def material_receipt():
             'items': [{
                 'item_code': str(items.get('item_id')),
                 'qty': items.get('product_quantity'),
-                'allow_zero_valuation_rate': 1
+                'allow_zero_valuation_rate': 1,
+                'serial_no': "\n".join(items.get('serial_no', []))
             }]
         })
         doc.insert(ignore_permissions=True)
@@ -73,7 +73,8 @@ def material_issue():
             'items': [{
                 'item_code': str(items.get('item_id')),
                 'qty': items.get('product_quantity'),
-                'allow_zero_valuation_rate': 1
+                'allow_zero_valuation_rate': 1,
+                'serial_no': "\n".join(items.get('serial_no', []))
             }]
         })
         doc.insert(ignore_permissions=True)
