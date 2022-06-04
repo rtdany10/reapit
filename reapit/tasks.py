@@ -174,6 +174,39 @@ def repack_item():
 			'items': products
 		})
 		doc.insert(ignore_permissions=True)
+	except Exception as e:
+		frappe.log_error(frappe.get_traceback(), "Repack API error")
+		return e
+	return 0
+
+
+@frappe.whitelist(allow_guest=True)
+def submit_repack():
+	try:
+		frappe.db.commit()
+		data = json.loads(frappe.request.data)
+		frappe.get_doc("Stock Entry", data.get("repack_entry")).submit()
+	except Exception as e:
+		frappe.log_error(frappe.get_traceback(), "Repack API error")
+		frappe.db.rollback()
+		return e
+	return 0
+
+
+@frappe.whitelist(allow_guest=True)
+def work_order():
+	try:
+		data = json.loads(frappe.request.data)
+		doc = frappe.get_doc({
+			'doctype': 'Work Order',
+			'stock_entry_type': 'Repack',
+			'production_item': data.get("production_item"),
+			'bom_no': data.get("bom_no"),
+			'qty': data.get("qty"),
+			'wip_warehouse': data.get("wip_warehouse"),
+			'fg_warehouse': data.get("fg_warehouse")
+		})
+		doc.insert(ignore_permissions=True)
 		doc.submit()
 	except Exception as e:
 		frappe.log_error(frappe.get_traceback(), "Repack API error")
