@@ -185,8 +185,8 @@ def submit_repack():
 	try:
 		frappe.db.commit()
 		data = json.loads(frappe.request.data)
-		doc = frappe.get_doc("Stock Entry", data.get("repack_entry"))
-		doc.run_method('submit')
+		frappe.set_user("Administrator")
+		frappe.get_doc("Stock Entry", data.get("repack_entry")).submit()
 	except Exception as e:
 		frappe.log_error(frappe.get_traceback(), "Repack API error")
 		frappe.db.rollback()
