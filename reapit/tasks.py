@@ -152,15 +152,9 @@ def transfer_item():
 def repack_item():
 	try:
 		items = json.loads(frappe.request.data)
-		products = [{
-			's_warehouse': items.get('source_warehouse'),
-			'item_code': str(items.get('repack_item')),
-			'qty': items.get('repack_qty'),
-			'allow_zero_valuation_rate': 1,
-			'serial_no': "\n".join(items.get('serial_no', []))
-		}]
 		for item in items['target_items']:
 			products.append({
+				's_warehouse': items.get('source_warehouse'),
 				't_warehouse': items.get('target_warehouse'),
 				'item_code': str(item.get('product_code')),
 				'qty': item.get('product_quantity'),
@@ -177,7 +171,7 @@ def repack_item():
 	except Exception as e:
 		frappe.log_error(frappe.get_traceback(), "Repack API error")
 		return e
-	return 0
+	return doc.name
 
 
 @frappe.whitelist(allow_guest=True)
