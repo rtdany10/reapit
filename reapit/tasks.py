@@ -193,7 +193,7 @@ def submit_repack():
 def work_order():
 	try:
 		data = json.loads(frappe.request.data)
-		doc = make_stock_entry(data.get("work_order"), "Manufacture", data.get("qty", 0))
+		doc = frappe.get_doc(make_stock_entry(data.get("work_order"), "Manufacture", data.get("qty", 0)))
 		doc.insert(ignore_permissions=True)
 		doc.submit()
 	except Exception as e:
