@@ -153,6 +153,7 @@ def transfer_item():
 def repack_item():
 	try:
 		data = json.loads(frappe.request.data)
+		products = []
 		for item in data['items']:
 			products.append({
 				's_warehouse': item.get('source_warehouse'),
