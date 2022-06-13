@@ -5,6 +5,7 @@ import json
 from erpnext.stock.doctype.stock_reconciliation.stock_reconciliation import get_items
 from frappe.utils.data import today, nowtime, format_date, format_time
 from erpnext import get_default_company
+from erpnext.manufacturing.doctype.work_order.work_order import make_stock_entry
 
 
 @frappe.whitelist(allow_guest=True)
@@ -151,11 +152,11 @@ def transfer_item():
 @frappe.whitelist(allow_guest=True)
 def repack_item():
 	try:
-		items = json.loads(frappe.request.data)
-		for item in items['target_items']:
+		data = json.loads(frappe.request.data)
+		for item in data['items']:
 			products.append({
-				's_warehouse': items.get('source_warehouse'),
-				't_warehouse': items.get('target_warehouse'),
+				's_warehouse': item.get('source_warehouse'),
+				't_warehouse': item.get('target_warehouse'),
 				'item_code': str(item.get('product_code')),
 				'qty': item.get('product_quantity'),
 				'set_basic_rate_manually': item.get('zero_rate', 0),
@@ -182,7 +183,7 @@ def submit_repack():
 		frappe.set_user("Administrator")
 		frappe.get_doc("Stock Entry", data.get("repack_entry")).submit()
 	except Exception as e:
-		frappe.log_error(frappe.get_traceback(), "Repack API error")
+		frappe.log_error(frappe.get_traceback(), "Repack Submit API error")
 		frappe.db.rollback()
 		return e
 	return 0
@@ -192,19 +193,11 @@ def submit_repack():
 def work_order():
 	try:
 		data = json.loads(frappe.request.data)
-		doc = frappe.get_doc({
-			'doctype': 'Work Order',
-			'stock_entry_type': 'Repack',
-			'production_item': data.get("production_item"),
-			'bom_no': data.get("bom_no"),
-			'qty': data.get("qty"),
-			'wip_warehouse': data.get("wip_warehouse"),
-			'fg_warehouse': data.get("fg_warehouse")
-		})
+		doc = make_stock_entry(data.get("work_order"), "Manufacture", data.get("qty", 0))
 		doc.insert(ignore_permissions=True)
 		doc.submit()
 	except Exception as e:
-		frappe.log_error(frappe.get_traceback(), "Repack API error")
+		frappe.log_error(frappe.get_traceback(), "Work Order API error")
 		return e
 	return 0
 
