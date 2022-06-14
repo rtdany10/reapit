@@ -193,6 +193,7 @@ def submit_repack():
 @frappe.whitelist(allow_guest=True)
 def work_order():
 	try:
+		frappe.db.commit()
 		data = json.loads(frappe.request.data)
 		doc = frappe.get_doc(make_stock_entry(data.get("work_order"), "Manufacture", data.get("qty", 0)))
 		doc.insert(ignore_permissions=True)
@@ -204,6 +205,7 @@ def work_order():
 		doc.submit()
 	except Exception as e:
 		frappe.log_error(frappe.get_traceback(), "Work Order API error")
+		frappe.db.rollback()
 		return e
 	return 0
 
