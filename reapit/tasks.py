@@ -196,6 +196,11 @@ def work_order():
 		data = json.loads(frappe.request.data)
 		doc = frappe.get_doc(make_stock_entry(data.get("work_order"), "Manufacture", data.get("qty", 0)))
 		doc.insert(ignore_permissions=True)
+		sno_items = data.get("items")
+		if sno_items:
+			for item in doc.items:
+				if sno_items.get(item.item_code):
+					item.serial_no = "\n".join(sno_items.get(item.item_code))
 		doc.submit()
 	except Exception as e:
 		frappe.log_error(frappe.get_traceback(), "Work Order API error")
