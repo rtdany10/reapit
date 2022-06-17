@@ -43,6 +43,7 @@ def warehouse_stock():
 @frappe.whitelist(allow_guest=True)
 def material_receipt():
 	try:
+		frappe.db.commit()
 		items = json.loads(frappe.request.data)
 		doc = frappe.get_doc({
 			'doctype': 'Stock Entry',
@@ -58,6 +59,7 @@ def material_receipt():
 		doc.insert(ignore_permissions=True)
 		doc.submit()
 	except Exception as e:
+		frappe.db.rollback()
 		frappe.log_error(frappe.get_traceback(), "Material receipt API error")
 		return e
 	return 0
@@ -66,6 +68,7 @@ def material_receipt():
 @frappe.whitelist(allow_guest=True)
 def material_issue():
 	try:
+		frappe.db.commit()
 		items = json.loads(frappe.request.data)
 		doc = frappe.get_doc({
 			'doctype': 'Stock Entry',
@@ -81,6 +84,7 @@ def material_issue():
 		doc.insert(ignore_permissions=True)
 		doc.submit()
 	except Exception as e:
+		frappe.db.rollback()
 		frappe.log_error(frappe.get_traceback(), "Material issue API error")
 		return e
 	return 0
@@ -89,6 +93,7 @@ def material_issue():
 @frappe.whitelist(allow_guest=True)
 def used_product():
 	try:
+		frappe.db.commit()
 		items = json.loads(frappe.request.data)
 		doc = frappe.get_doc({
 			'doctype': 'Stock Entry',
@@ -116,6 +121,7 @@ def used_product():
 		doc.insert(ignore_permissions=True)
 		doc.submit()
 	except Exception as e:
+		frappe.db.rollback()
 		frappe.log_error(frappe.get_traceback(), "Used product API error")
 		return e
 	return 0
@@ -124,6 +130,7 @@ def used_product():
 @frappe.whitelist(allow_guest=True)
 def transfer_item():
 	try:
+		frappe.db.commit()
 		items = json.loads(frappe.request.data)
 		products = []
 		for item in items['part_info']:
@@ -144,6 +151,7 @@ def transfer_item():
 		doc.insert(ignore_permissions=True)
 		doc.submit()
 	except Exception as e:
+		frappe.db.rollback()
 		frappe.log_error(frappe.get_traceback(), "Material transfer API error")
 		return e
 	return 0
@@ -152,6 +160,7 @@ def transfer_item():
 @frappe.whitelist(allow_guest=True)
 def repack_item():
 	try:
+		frappe.db.commit()
 		data = json.loads(frappe.request.data)
 		products = []
 		for item in data['items']:
@@ -170,22 +179,10 @@ def repack_item():
 			'items': products
 		})
 		doc.insert(ignore_permissions=True)
+		doc.submit()
 	except Exception as e:
-		frappe.log_error(frappe.get_traceback(), "Repack API error")
-		return e
-	return doc.name
-
-
-@frappe.whitelist(allow_guest=True)
-def submit_repack():
-	try:
-		frappe.db.commit()
-		data = json.loads(frappe.request.data)
-		frappe.set_user("Administrator")
-		frappe.get_doc("Stock Entry", data.get("repack_entry")).submit()
-	except Exception as e:
-		frappe.log_error(frappe.get_traceback(), "Repack Submit API error")
 		frappe.db.rollback()
+		frappe.log_error(frappe.get_traceback(), "Repack API error")
 		return e
 	return 0
 
