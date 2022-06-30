@@ -207,6 +207,14 @@ def work_order():
 	return 0
 
 
+@frappe.whitelist(allow_guest=True)
+def get_sno_warehouse(sno):
+	try:
+		return frappe.db.get_value("Serial No", sno, "warehouse")
+	except Exception as e:
+		return e
+
+
 @frappe.whitelist()
 def sync_item(doc, method=None):
 	settings = frappe.get_single('Item Sync Settings')
