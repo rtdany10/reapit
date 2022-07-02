@@ -210,9 +210,12 @@ def work_order():
 @frappe.whitelist(allow_guest=True)
 def get_sno_warehouse(sno):
 	try:
-		return frappe.db.get_value("Serial No", sno, "warehouse")
+		warehouse = frappe.db.get_value("Serial No", sno, "warehouse")
+		if warehouse:
+			return {"success": True, "warehouse": warehouse}
+		return {"success": False, "warehouse": "Could not find warehouse."}
 	except Exception as e:
-		return e
+		return {"success": False, "warehouse": str(e)}
 
 
 @frappe.whitelist()
