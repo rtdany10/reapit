@@ -263,8 +263,8 @@ def add_to_transit():
 		products = []
 		for item in data['items']:
 			products.append({
-				'item_code': str(item.get('product_code')),
-				'qty': item.get('product_quantity'),
+				'item_code': str(item.get('item_code')),
+				'qty': item.get('qty'),
 				'allow_zero_valuation_rate': 1,
 				'serial_no': "\n".join(item.get('serial_no', []))
 			})
@@ -274,6 +274,7 @@ def add_to_transit():
 			'add_to_transit': 1,
 			'from_warehouse': str(data.get('source_warehouse')),
 			'to_warehouse': str(data.get('target_warehouse')),
+			'final_destination_warehouse': str(data.get('final_destination_warehouse'))
 			'items': products
 		})
 		doc.insert(ignore_permissions=True)
