@@ -253,3 +253,25 @@ def sync_item(doc, method=None):
 		except Exception:
 			frappe.log_error(message=frappe.get_traceback(), title='Item Sync Error')
 			frappe.throw("Error syncing item. Please contact system manager.")
+
+
+@frappe.whitelist(allow_guest=True)
+def add_to_transit():
+	try:
+		frappe.db.commit()
+		data = json.loads(frappe.request.data)
+		doc = frappe.get_doc({
+			'doctype': 'Stock Entry',
+			'stock_entry_type': 'Material Transfer',
+			'add_to_transit': 1,
+			'from_warehouse': str(data.get('source_warehouse')),
+			'to_warehouse': str(data.get('target_warehouse')),
+			'items': data.get('items')
+		})
+		doc.insert(ignore_permissions=True)
+		doc.submit()
+		return {'success': True, 'stock_entry': doc.name}
+	except Exception as e:
+		frappe.db.rollback()
+		frappe.log_error(frappe.get_traceback(), "Material transfer API error")
+		return {'success': False, 'error': str(e)}
