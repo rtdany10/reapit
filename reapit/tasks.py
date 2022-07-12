@@ -274,7 +274,7 @@ def add_to_transit():
 			'add_to_transit': 1,
 			'from_warehouse': str(data.get('source_warehouse')),
 			'to_warehouse': str(data.get('target_warehouse')),
-			'final_destination_warehouse': str(data.get('final_destination_warehouse'))
+			'final_destination_warehouse': str(data.get('final_destination_warehouse')),
 			'items': products
 		})
 		doc.insert(ignore_permissions=True)
@@ -282,5 +282,5 @@ def add_to_transit():
 		return {'success': True, 'stock_entry': doc.name}
 	except Exception as e:
 		frappe.db.rollback()
-		frappe.log_error(frappe.get_traceback(), "Material transfer API error")
+		frappe.log_error(frappe.get_traceback(), "Transit API error")
 		return {'success': False, 'error': str(e)}
