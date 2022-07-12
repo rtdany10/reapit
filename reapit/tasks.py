@@ -260,13 +260,21 @@ def add_to_transit():
 	try:
 		frappe.db.commit()
 		data = json.loads(frappe.request.data)
+		products = []
+		for item in data['items']:
+			products.append({
+				'item_code': str(item.get('product_code')),
+				'qty': item.get('product_quantity'),
+				'allow_zero_valuation_rate': 1,
+				'serial_no': "\n".join(item.get('serial_no', []))
+			})
 		doc = frappe.get_doc({
 			'doctype': 'Stock Entry',
 			'stock_entry_type': 'Material Transfer',
 			'add_to_transit': 1,
 			'from_warehouse': str(data.get('source_warehouse')),
 			'to_warehouse': str(data.get('target_warehouse')),
-			'items': data.get('items')
+			'items': products
 		})
 		doc.insert(ignore_permissions=True)
 		doc.submit()
