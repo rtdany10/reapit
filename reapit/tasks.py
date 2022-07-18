@@ -6,6 +6,7 @@ from erpnext.stock.doctype.stock_reconciliation.stock_reconciliation import get_
 from frappe.utils.data import today, nowtime, format_date, format_time
 from erpnext import get_default_company
 from erpnext.manufacturing.doctype.work_order.work_order import make_stock_entry
+from erpnext.stock.doctype.stock_entry.stock_entry import make_stock_in_entry
 
 
 @frappe.whitelist(allow_guest=True)
@@ -283,4 +284,20 @@ def add_to_transit():
 	except Exception as e:
 		frappe.db.rollback()
 		frappe.log_error(frappe.get_traceback(), "Transit API error")
+		return {'success': False, 'error': str(e)}
+
+
+@frappe.whitelist(allow_guest=True)
+def end_transit():
+	try:
+		frappe.db.commit()
+		data = json.loads(frappe.request.data)
+		doc = make_stock_in_entry(data['transit_entry'])
+		doc.to_warehouse = frappe.db.get_value("Stock Entry", data['transit_entry'], 'final_destination_warehouse')
+		doc.insert(ignore_permissions=True)
+		doc.submit()
+		return {'success': True, 'stock_entry': doc.name}
+	except Exception as e:
+		frappe.db.rollback()
+		frappe.log_error(frappe.get_traceback(), "End Transit API error")
 		return {'success': False, 'error': str(e)}
