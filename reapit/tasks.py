@@ -6,7 +6,6 @@ from erpnext.stock.doctype.stock_reconciliation.stock_reconciliation import get_
 from frappe.utils.data import today, nowtime, format_date, format_time
 from erpnext import get_default_company
 from erpnext.manufacturing.doctype.work_order.work_order import make_stock_entry
-from erpnext.stock.doctype.stock_entry.stock_entry import make_stock_in_entry
 
 
 @frappe.whitelist(allow_guest=True)
@@ -292,7 +291,7 @@ def end_transit():
 	try:
 		frappe.db.commit()
 		data = json.loads(frappe.request.data)
-		doc = make_stock_in_entry(data['transit_entry'])
+		doc = make_stock_in_entry(data['transit_entry'], data.get('items'))
 		doc.to_warehouse = frappe.db.get_value("Stock Entry", data['transit_entry'], 'final_destination_warehouse')
 		doc.insert(ignore_permissions=True)
 		doc.submit()
@@ -301,3 +300,51 @@ def end_transit():
 		frappe.db.rollback()
 		frappe.log_error(frappe.get_traceback(), "End Transit API error")
 		return {'success': False, 'error': str(e)}
+
+
+def make_stock_in_entry(source_name, item_dict, target_doc=None):
+	def set_missing_values(source, target):
+		target.set_stock_entry_type()
+		target.set_missing_values()
+
+	def update_item(source_doc, target_doc, source_parent):
+		target_doc.t_warehouse = ""
+
+		if source_doc.material_request_item and source_doc.material_request:
+			add_to_transit = frappe.db.get_value("Stock Entry", source_name, "add_to_transit")
+			if add_to_transit:
+				warehouse = frappe.get_value(
+					"Material Request Item", source_doc.material_request_item, "warehouse"
+				)
+				target_doc.t_warehouse = warehouse
+
+		target_doc.s_warehouse = source_doc.t_warehouse
+		target_doc.qty = item_dict[target_doc.item_code]["qty"]
+		target_doc.serial_no = "\n".join(item_dict[target_doc.item_code]["serial_no"])
+
+	doclist = get_mapped_doc(
+		"Stock Entry",
+		source_name,
+		{
+			"Stock Entry": {
+				"doctype": "Stock Entry",
+				"field_map": {"name": "outgoing_stock_entry"},
+				"validation": {"docstatus": ["=", 1]},
+			},
+			"Stock Entry Detail": {
+				"doctype": "Stock Entry Detail",
+				"field_map": {
+					"name": "ste_detail",
+					"parent": "against_stock_entry",
+					"serial_no": "serial_no",
+					"batch_no": "batch_no",
+				},
+				"postprocess": update_item,
+				"condition": lambda doc: (flt(doc.qty) - flt(doc.transferred_qty) > 0.01) and doc.item_code in item_dict.keys(),
+			},
+		},
+		target_doc,
+		set_missing_values,
+	)
+
+	return doclist
