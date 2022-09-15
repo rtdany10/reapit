@@ -353,16 +353,17 @@ def make_stock_in_entry(source_name, item_dict, target_doc=None):
 
 
 def attach_pdf(doc, method=None):
-	pdf = frappe.attach_print(
-		doc.doctype,
-		doc.name,
-		doc=doc
-	)
-	frappe.get_doc({
-		"doctype": "File",
-		"file_name": pdf["fname"],
-		"is_private": 0,
-		"content": pdf["fcontent"],
-		"attached_to_doctype": doc.doctype,
-		"attached_to_name": doc.name
-	}).save()
+	if doc.purpose == "Repack":
+		pdf = frappe.attach_print(
+			doc.doctype,
+			doc.name,
+			doc=doc
+		)
+		frappe.get_doc({
+			"doctype": "File",
+			"file_name": pdf["fname"],
+			"is_private": 0,
+			"content": pdf["fcontent"],
+			"attached_to_doctype": doc.doctype,
+			"attached_to_name": doc.name
+		}).save()
