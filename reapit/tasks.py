@@ -4,7 +4,7 @@
 import frappe
 import json
 from erpnext.stock.doctype.stock_reconciliation.stock_reconciliation import get_items
-from frappe.utils import today, nowtime, format_date, format_time, flt
+from frappe.utils import today, nowtime, format_date, format_time, flt, getdate
 from frappe.model.mapper import get_mapped_doc
 from erpnext import get_default_company
 from erpnext.manufacturing.doctype.work_order.work_order import make_stock_entry
@@ -367,3 +367,16 @@ def attach_pdf(doc, method=None):
 			"attached_to_doctype": doc.doctype,
 			"attached_to_name": doc.name
 		}).save()
+
+
+@frappe.whitelist()
+def attach_repack_pdf(from_date, to_date):
+	from_date, to_date = getdate(from_date), getdate(to_date)
+	entries_to_fix = frappe.db.get_all("Stock Entry", filters={
+		"docstatus": 1,
+		"purpose": "Repack",
+		"posting_date": ["between", [from_date, to_date]]
+	}, pluck="name")
+	for se in entries_to_fix:
+		doc = frappe.get_doc("Stock Entry", se)
+		attach_pdf(doc)
