@@ -58,6 +58,7 @@ def material_receipt():
 				'serial_no': "\n".join(items.get('serial_no', []))
 			}]
 		})
+		doc.new_purifier_id = items.get("new_purifier_id")
 		doc.insert(ignore_permissions=True)
 		doc.submit()
 	except Exception as e:
@@ -83,6 +84,7 @@ def material_issue():
 				'serial_no': "\n".join(items.get('serial_no', []))
 			}]
 		})
+		doc.new_purifier_id = items.get("new_purifier_id")
 		doc.insert(ignore_permissions=True)
 		doc.submit()
 	except Exception as e:
@@ -150,6 +152,7 @@ def transfer_item():
 			'to_warehouse': str(items.get('target_warehouse')),
 			'items': products
 		})
+		doc.new_purifier_id = items.get("new_purifier_id")
 		doc.insert(ignore_permissions=True)
 		doc.submit()
 	except Exception as e:
@@ -180,6 +183,12 @@ def repack_item():
 			'stock_entry_type': 'Repack',
 			'items': products
 		})
+		doc.old_bot_id = data.get("old_bot_id")
+		doc.new_bot_id = data.get("new_bot_id")
+		doc.sponsor_id = data.get("sponsor_id")
+		doc.old_purifier_id = data.get("old_purifier_id")
+		doc.new_purifier_id = data.get("new_purifier_id")
+		doc.refurbishment_category = data.get("refurbishment_category")
 		doc.insert(ignore_permissions=True)
 		doc.submit()
 	except Exception as e:
@@ -195,6 +204,8 @@ def work_order():
 		frappe.db.commit()
 		data = json.loads(frappe.request.data)
 		doc = frappe.get_doc(make_stock_entry(data.get("work_order"), "Manufacture", data.get("qty", 0)))
+		doc.new_purifier_id = data.get("new_purifier_id")
+		doc.sponsor_id = data.get("sponsor_id")
 		doc.insert(ignore_permissions=True)
 		sno_items = data.get("items")
 		if sno_items:
@@ -207,6 +218,19 @@ def work_order():
 		frappe.db.rollback()
 		return e
 	return 0
+
+@frappe.whitelist(allow_guest=True)
+def get_active_work_order():
+	try:
+		work_order = frappe.db.get_list("Work Order", fiters={
+			"status": ["in", ["In Process", "Not Started"]]
+		}, pluck="name")
+		if work_order:
+			return {"success": True, "work_order": work_order}
+		return {"success": False, "work_order": "Could not find active work order."}
+	except Exception as e:
+		return {"success": False, "work_order": str(e)}
+
 
 
 @frappe.whitelist(allow_guest=True)
