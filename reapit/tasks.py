@@ -51,6 +51,7 @@ def material_receipt():
 			'doctype': 'Stock Entry',
 			'stock_entry_type': 'Material Receipt',
 			'to_warehouse': str(items.get('target_warehouse')),
+			'new_purifier_id': items.get("new_purifier_id"),
 			'items': [{
 				'item_code': str(items.get('item_id')),
 				'qty': items.get('product_quantity'),
@@ -58,7 +59,6 @@ def material_receipt():
 				'serial_no': "\n".join(items.get('serial_no', []))
 			}]
 		})
-		doc.new_purifier_id = items.get("new_purifier_id")
 		doc.insert(ignore_permissions=True)
 		doc.submit()
 	except Exception as e:
@@ -77,6 +77,7 @@ def material_issue():
 			'doctype': 'Stock Entry',
 			'stock_entry_type': 'Material Issue',
 			'from_warehouse': str(items.get('source_warehouse')),
+			'new_purifier_id': str(items.get("new_purifier_id")),
 			'items': [{
 				'item_code': str(items.get('item_id')),
 				'qty': items.get('product_quantity'),
@@ -84,7 +85,6 @@ def material_issue():
 				'serial_no': "\n".join(items.get('serial_no', []))
 			}]
 		})
-		doc.new_purifier_id = items.get("new_purifier_id")
 		doc.insert(ignore_permissions=True)
 		doc.submit()
 	except Exception as e:
@@ -150,9 +150,9 @@ def transfer_item():
 			'stock_entry_type': 'Material Transfer',
 			'from_warehouse': str(items.get('source_warehouse')),
 			'to_warehouse': str(items.get('target_warehouse')),
+			'new_purifier_id': str(items.get("new_purifier_id")),
 			'items': products
 		})
-		doc.new_purifier_id = items.get("new_purifier_id")
 		doc.insert(ignore_permissions=True)
 		doc.submit()
 	except Exception as e:
@@ -181,14 +181,14 @@ def repack_item():
 		doc = frappe.get_doc({
 			'doctype': 'Stock Entry',
 			'stock_entry_type': 'Repack',
-			'items': products
+			'items': products,
+			'old_bot_id': data.get("old_bot_id"),
+			'new_bot_id': data.get("new_bot_id"),
+			'sponsor_id': data.get("sponsor_id"),
+			'old_purifier_id': data.get("old_purifier_id"),
+			'new_purifier_id': data.get("new_purifier_id"),
+			'refurbishment_category': str(data.get("refurbishment_category"))
 		})
-		doc.old_bot_id = data.get("old_bot_id")
-		doc.new_bot_id = data.get("new_bot_id")
-		doc.sponsor_id = data.get("sponsor_id")
-		doc.old_purifier_id = data.get("old_purifier_id")
-		doc.new_purifier_id = data.get("new_purifier_id")
-		doc.refurbishment_category = data.get("refurbishment_category")
 		doc.insert(ignore_permissions=True)
 		doc.submit()
 	except Exception as e:
@@ -223,7 +223,7 @@ def work_order():
 def get_active_work_order():
 	try:
 		work_order = frappe.db.get_list("Work Order", fiters={
-			"status": ["in", ["In Process", "Not Started"]]
+			"status": "In Process"
 		}, pluck="name")
 		if work_order:
 			return {"success": True, "work_order": work_order}
