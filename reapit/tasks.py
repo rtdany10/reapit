@@ -222,7 +222,7 @@ def work_order():
 @frappe.whitelist(allow_guest=True)
 def get_active_work_order():
 	try:
-		work_order = frappe.db.get_list("Work Order", filters={
+		work_order = frappe.db.get_all("Work Order", filters={
 			"status": "In Process",
 			"docstatus": 1
 		}, pluck="name")
