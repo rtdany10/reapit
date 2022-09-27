@@ -77,7 +77,7 @@ def material_issue():
 			'doctype': 'Stock Entry',
 			'stock_entry_type': 'Material Issue',
 			'from_warehouse': str(items.get('source_warehouse')),
-			'new_purifier_id': str(items.get("new_purifier_id")),
+			'new_purifier_id': items.get("new_purifier_id"),
 			'items': [{
 				'item_code': str(items.get('item_id')),
 				'qty': items.get('product_quantity'),
@@ -150,7 +150,7 @@ def transfer_item():
 			'stock_entry_type': 'Material Transfer',
 			'from_warehouse': str(items.get('source_warehouse')),
 			'to_warehouse': str(items.get('target_warehouse')),
-			'new_purifier_id': str(items.get("new_purifier_id")),
+			'new_purifier_id': items.get("new_purifier_id"),
 			'items': products
 		})
 		doc.insert(ignore_permissions=True)
@@ -187,7 +187,7 @@ def repack_item():
 			'sponsor_id': data.get("sponsor_id"),
 			'old_purifier_id': data.get("old_purifier_id"),
 			'new_purifier_id': data.get("new_purifier_id"),
-			'refurbishment_category': str(data.get("refurbishment_category"))
+			'refurbishment_category': data.get("refurbishment_category")
 		})
 		doc.insert(ignore_permissions=True)
 		doc.submit()
@@ -222,7 +222,7 @@ def work_order():
 @frappe.whitelist(allow_guest=True)
 def get_active_work_order():
 	try:
-		work_order = frappe.db.get_list("Work Order", fiters={
+		work_order = frappe.db.get_list("Work Order", filters={
 			"status": "In Process"
 		}, pluck="name")
 		if work_order:
