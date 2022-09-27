@@ -223,7 +223,8 @@ def work_order():
 def get_active_work_order():
 	try:
 		work_order = frappe.db.get_list("Work Order", filters={
-			"status": "In Process"
+			"status": "In Process",
+			"docstatus": 1
 		}, pluck="name")
 		if work_order:
 			return {"success": True, "work_order": work_order}
