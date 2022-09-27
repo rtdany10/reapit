@@ -51,6 +51,7 @@ def material_receipt():
 			'doctype': 'Stock Entry',
 			'stock_entry_type': 'Material Receipt',
 			'to_warehouse': str(items.get('target_warehouse')),
+			'new_purifier_id': items.get("new_purifier_id"),
 			'items': [{
 				'item_code': str(items.get('item_id')),
 				'qty': items.get('product_quantity'),
@@ -76,6 +77,7 @@ def material_issue():
 			'doctype': 'Stock Entry',
 			'stock_entry_type': 'Material Issue',
 			'from_warehouse': str(items.get('source_warehouse')),
+			'new_purifier_id': items.get("new_purifier_id"),
 			'items': [{
 				'item_code': str(items.get('item_id')),
 				'qty': items.get('product_quantity'),
@@ -148,6 +150,7 @@ def transfer_item():
 			'stock_entry_type': 'Material Transfer',
 			'from_warehouse': str(items.get('source_warehouse')),
 			'to_warehouse': str(items.get('target_warehouse')),
+			'new_purifier_id': items.get("new_purifier_id"),
 			'items': products
 		})
 		doc.insert(ignore_permissions=True)
@@ -178,7 +181,13 @@ def repack_item():
 		doc = frappe.get_doc({
 			'doctype': 'Stock Entry',
 			'stock_entry_type': 'Repack',
-			'items': products
+			'items': products,
+			'old_bot_id': data.get("old_bot_id"),
+			'new_bot_id': data.get("new_bot_id"),
+			'sponsor_id': data.get("sponsor_id"),
+			'old_purifier_id': data.get("old_purifier_id"),
+			'new_purifier_id': data.get("new_purifier_id"),
+			'refurbishment_category': data.get("refurbishment_category")
 		})
 		doc.insert(ignore_permissions=True)
 		doc.submit()
@@ -195,6 +204,8 @@ def work_order():
 		frappe.db.commit()
 		data = json.loads(frappe.request.data)
 		doc = frappe.get_doc(make_stock_entry(data.get("work_order"), "Manufacture", data.get("qty", 0)))
+		doc.new_purifier_id = data.get("new_purifier_id")
+		doc.sponsor_id = data.get("sponsor_id")
 		doc.insert(ignore_permissions=True)
 		sno_items = data.get("items")
 		if sno_items:
@@ -207,6 +218,20 @@ def work_order():
 		frappe.db.rollback()
 		return e
 	return 0
+
+@frappe.whitelist(allow_guest=True)
+def get_active_work_order():
+	try:
+		work_order = frappe.db.get_list("Work Order", filters={
+			"status": "In Process",
+			"docstatus": 1
+		}, pluck="name")
+		if work_order:
+			return {"success": True, "work_order": work_order}
+		return {"success": False, "work_order": "Could not find active work order."}
+	except Exception as e:
+		return {"success": False, "work_order": str(e)}
+
 
 
 @frappe.whitelist(allow_guest=True)
