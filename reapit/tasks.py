@@ -1,13 +1,16 @@
-# Copyright (c) 2021, Wahni Green Technologies and contributors
+# Copyright (c) 2021, Wahni IT Solutions and contributors
 # For license information, please see license.txt
 
-import frappe
 import json
-from erpnext.stock.doctype.stock_reconciliation.stock_reconciliation import get_items
-from frappe.utils import today, nowtime, format_date, format_time, flt, getdate
-from frappe.model.mapper import get_mapped_doc
+
+import frappe
 from erpnext import get_default_company
-from erpnext.manufacturing.doctype.work_order.work_order import make_stock_entry
+from erpnext.manufacturing.doctype.work_order.work_order import \
+    make_stock_entry
+from erpnext.stock.doctype.stock_reconciliation.stock_reconciliation import \
+    get_items
+from frappe.model.mapper import get_mapped_doc
+from frappe.utils import flt, format_date, format_time, getdate, nowtime, today
 
 
 @frappe.whitelist(allow_guest=True)

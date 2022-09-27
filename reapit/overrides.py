@@ -1,9 +1,9 @@
 # Copyright (c) 2022, Wahni Green Technologies and contributors
 # For license information, please see license.txt
 
-from frappe.utils import flt
 from erpnext.stock.doctype.stock_entry.stock_entry import StockEntry
 from erpnext.stock.utils import get_incoming_rate
+from frappe.utils import flt
 
 
 class CustomStockEntry(StockEntry):

@@ -1,5 +1,7 @@
 import frappe
+
 from reapit.tasks import attach_pdf
+
 
 def execute():
 	entries_to_fix = frappe.db.get_all("Stock Entry", filters={

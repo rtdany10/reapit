@@ -1,5 +1,6 @@
 import frappe
 
+
 def execute():
 	entries_to_fix = frappe.db.get_all("Stock Entry", filters={
 		"docstatus": 1,
