@@ -13,15 +13,6 @@ def authenticate():
 	try:
 		data = json.loads(frappe.request.data)
 		username = data.get("username")
-		password = data.get("password")
-		try:
-			login_manager = frappe.auth.LoginManager()
-			login_manager.authenticate(user=username, pwd=password)
-		except Exception:
-			frappe.local.response["status_code"] = 400
-			return {"success": False, "message": "Invalid username or password"}
-
-		login_manager.post_login()
 		token = generate_keys(username)
 
 		return {
