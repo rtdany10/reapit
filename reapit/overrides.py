@@ -12,7 +12,7 @@ class CustomStockEntry(StockEntry):
 		rf_cost = 0
 		if self.purpose == 'Repack':
 			for row in self.items:
-				if (row.item_code != '2003' and not row.t_warehouse):
+				if (row.item_code not in ['2003', '2001'] and not row.t_warehouse):
 					rf_cost += row.basic_amount
 			self.refurbishment_cost = rf_cost  
 
