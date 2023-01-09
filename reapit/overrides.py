@@ -14,7 +14,7 @@ class CustomStockEntry(StockEntry):
 			for row in self.items:
 				if (row.item_code not in ['2003', '2001'] and not row.t_warehouse):
 					rf_cost += row.basic_amount
-			self.refurbishment_cost = rf_cost  
+			self.refurbishment_cost = rf_cost
 
 	def set_rate_for_outgoing_items(self, reset_outgoing_rate=True, raise_error_if_no_rate=True):
 		outgoing_items_cost = 0.0

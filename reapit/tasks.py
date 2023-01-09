@@ -2,7 +2,6 @@
 # For license information, please see license.txt
 
 import json
-import time
 
 import frappe
 from erpnext import get_default_company
@@ -169,7 +168,6 @@ def transfer_item():
 @frappe.whitelist(allow_guest=True)
 def repack_item():
 	try:
-		st = time.time()
 		frappe.db.commit()
 		data = json.loads(frappe.request.data)
 		products = []
@@ -183,7 +181,6 @@ def repack_item():
 				'allow_zero_valuation_rate': 1,
 				'serial_no': "\n".join(item.get('serial_no', []))
 			})
-		frappe.log_error("products", products)
 		doc = frappe.get_doc({
 			'doctype': 'Stock Entry',
 			'stock_entry_type': 'Repack',
@@ -197,10 +194,6 @@ def repack_item():
 		})
 		doc.insert(ignore_permissions=True)
 		doc.submit()
-		et = time.time()
-		res = et - st
-		final_res = res * 1000
-		frappe.log_error("Repack time", final_res)
 	except Exception as e:
 		frappe.db.rollback()
 		frappe.log_error(frappe.get_traceback(), "Repack API error")
