@@ -49,4 +49,4 @@ def repack_item_draft():
 			error=str(e),
 			status="Failed"
 		)
-		{"success": False, "error": str(e)}
+		return {"success": False, "error": str(e)}
