@@ -58,6 +58,8 @@ def material_receipt():
 			'items': [{
 				'item_code': str(items.get('item_id')),
 				'qty': items.get('product_quantity'),
+				'set_basic_rate_manually': items.get('set_basic_rate_manually'),
+				'basic_rate': items.get('basic_rate'),
 				'allow_zero_valuation_rate': 1,
 				'serial_no': "\n".join(items.get('serial_no', []))
 			}]
