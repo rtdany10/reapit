@@ -11,6 +11,7 @@ from erpnext.stock.doctype.stock_reconciliation.stock_reconciliation import \
     get_items
 from frappe.model.mapper import get_mapped_doc
 from frappe.utils import flt, format_date, format_time, getdate, nowtime, today
+from frappe.integrations.utils import create_request_log
 
 
 @frappe.whitelist(allow_guest=True)
@@ -69,6 +70,14 @@ def material_receipt():
 	except Exception as e:
 		frappe.db.rollback()
 		frappe.log_error(frappe.get_traceback(), "Material receipt API error")
+		create_request_log(
+			data=json.loads(frappe.request.data),
+			request_description = "Material receipt API error",
+			service_name="Reapit",
+			request_headers=frappe.request.headers,
+			error=str(e),
+			status="Failed"
+		)
 		return e
 	return 0
 
@@ -95,6 +104,14 @@ def material_issue():
 	except Exception as e:
 		frappe.db.rollback()
 		frappe.log_error(frappe.get_traceback(), "Material issue API error")
+		create_request_log(
+			data=json.loads(frappe.request.data),
+			request_description = "Material issue API error",
+			service_name="Reapit",
+			request_headers=frappe.request.headers,
+			error=str(e),
+			status="Failed"
+		)
 		return e
 	return 0
 
@@ -163,6 +180,14 @@ def transfer_item():
 	except Exception as e:
 		frappe.db.rollback()
 		frappe.log_error(frappe.get_traceback(), "Material transfer API error")
+		create_request_log(
+			data=json.loads(frappe.request.data),
+			request_description = "Material transfer API error",
+			service_name="Reapit",
+			request_headers=frappe.request.headers,
+			error=str(e),
+			status="Failed"
+		)
 		return e
 	return 0
 
@@ -199,6 +224,14 @@ def repack_item():
 	except Exception as e:
 		frappe.db.rollback()
 		frappe.log_error(frappe.get_traceback(), "Repack API error")
+		create_request_log(
+			data=json.loads(frappe.request.data),
+			request_description = "Repack API error",
+			service_name="Reapit",
+			request_headers=frappe.request.headers,
+			error=str(e),
+			status="Failed"
+		)
 		return e
 	return 0
 
